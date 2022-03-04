@@ -1,29 +1,64 @@
 #!/bin/bash
-$configdir=/home/admin/scripts/MyNodeBTC-Install/
-$domain=
 
-sudo su
-apt-get install sed
+configdir=$(dirname $0)
+destino=/etc/nginx/sites-enabled
+domain=
 
-#https://askubuntu.com/questions/20414/find-and-replace-text-within-a-file-using-commands
-#find and replace
-echo "Preparando as configurações"
-sed -i 's/seudominio.org/$domain/g' etc/nginx/sites-enabled/https_btcpayserver-alt.conf
-sed -i 's/seudominio.org/$domain/g' etc/nginx/sites-enabled/https_btcrpcexplorer-alt.conf
-sed -i 's/seudominio.org/$domain/g' etc/nginx/sites-enabled/https_lnbits-alt.conf
-sed -i 's/seudominio.org/$domain/g' etc/nginx/sites-enabled/https_lndhub-alt.conf
-sed -i 's/seudominio.org/$domain/g' etc/nginx/sites-enabled/https_mempoolspace-alt.conf
+cmd=$0
 
-echo "Copiando arquivos de configuração"
- /home/admin/scripts/MyNodeBTC-Install/etc/nginx/sites-enabled/https_btcpayserver-alt.conf /etc/nginx/sites-enabled/https_btcpayserver-alt.conf
-echo "BTCPayServer ativado."
-cp /home/admin/scripts/MyNodeBTC-Install/etc/nginx/sites-enabled/https_btcrpcexplorer-alt.conf /etc/nginx/sites-enabled/https_btcrpcexplorer-alt.conf
-echo "Explorer ativado."
-cp /home/admin/scripts/MyNodeBTC-Install/etc/nginx/sites-enabled/https_lnbits-alt.conf /etc/nginx/sites-enabled/https_lnbits-alt.conf
-echo "LnBits ativada."
-cp /home/admin/scripts/MyNodeBTC-Install/etc/nginx/sites-enabled/https_lndhub-alt.conf /etc/nginx/sites-enabled/https_lndhub-alt.conf
-echo "LndHub ativado."
-cp /home/admin/scripts/MyNodeBTC-Install/etc/nginx/sites-enabled/https_mempoolspace-alt.conf /etc/nginx/sites-enabled/https_mempoolspace-alt.conf 
-echo "Mempool ativado."
+if [ ! -f /bin/sed ]
+then
+   apt-get install sed
+fi
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+      -d|--domain)
+      domain="$2"
+      shift 
+      shift 
+      ;;
+   *)
+     echo "Unknown option $1"
+     shift
+     ;;
+   esac
+ done
+  
+if [ -z "$domain" ]
+then
+   echo "$cmd [-d |--domain ] your.domain"
+   exit 1
+fi
+
+
+install -d "$destino"
+
+for i in $configdir/etc/nginx/sites-enabled/*.conf
+do
+   if [ ! -f "$i" ]
+   then
+      copntinue
+   fi
+         
+   f=$destino/$(basename $i)
+   
+   if [ -f $f ]
+   then
+     echo "File $f already exists... Skiping"
+     continue
+   fi  
+   
+   if [ ! -f $f ] 
+   then
+      echo Processing file $f
+      cp "$i" "$f"
+      sed -i "s/seudominio.org/$domain/g" $f
+   fi   
+done
+
 echo "Reiniciando Nginx"
 /etc/init.d/nginx restart
+
+exit 0
+
