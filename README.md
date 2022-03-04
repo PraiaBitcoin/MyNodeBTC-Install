@@ -5,7 +5,7 @@ Activate ngnix sites for BtcPay, Lndhub, LnBits, RPC Explorer, Mempool,  to list
 
 Usage 
 
-´´´
+'''
 sudo su
 cd /home/admin/
 mkdir scripts 
@@ -14,4 +14,4 @@ git clone https://github.com/PraiaBitcoin/MyNodeBTC-Install
 cd MyNodeBTC-Install
 chmod 755 install.sh
 ./install --domain seudominio.org
-´´´
+'''
