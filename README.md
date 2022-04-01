@@ -13,5 +13,5 @@ cd scripts
 git clone https://github.com/PraiaBitcoin/MyNodeBTC-Install
 cd MyNodeBTC-Install
 chmod 755 install.sh
-./install --domain seudominio.org
+./install.sh --domain seudominio.org
 ```
